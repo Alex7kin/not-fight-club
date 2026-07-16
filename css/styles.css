@@ -1,0 +1,334 @@
+:root {
+  --night: #14110d;
+  --board: #1d1811;
+  --board-2: #291f14;
+  --line: #4a3c28;
+  --blood: #a8261f;
+  --blood-bright: #d9452f;
+  --blood-deep: #8f1f18; /* button fills — passes AA against parchment text */
+  --blood-ink: #9a241b;  /* red text on the parchment contract */
+  --danger-text: #f0928a; /* legible red text on the dark board */
+  --gold: #cf9d47;
+  --gold-bright: #f0c674;
+  --parchment: #e9ddc0;
+  --ink: #241c10;
+  --steel: #b0a184;      /* muted parchment-grey for secondary text */
+
+  --font-display: 'Cinzel', 'Trajan Pro', 'Georgia', serif;
+  --font-body: 'EB Garamond', 'Georgia', 'Times New Roman', serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+html {
+  height: 100%;
+  cursor: url('../assets/cursors/default.cur'), auto;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: var(--font-body);
+  font-size: 1.02rem;
+  color: var(--parchment);
+  background-color: var(--night);
+  background-image:
+    radial-gradient(1200px 620px at 50% -8%, rgba(207, 157, 71, 0.11), transparent 60%),
+    radial-gradient(950px 720px at 50% 120%, rgba(168, 38, 31, 0.09), transparent 60%);
+  background-attachment: fixed;
+  line-height: 1.55;
+}
+
+a:hover {
+  cursor: url('../assets/cursors/pointer.png'), pointer;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font: inherit;
+  cursor: url('../assets/cursors/pointer.png'), pointer;
+}
+
+
+
+:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 2px;
+}
+
+/* Shared card art frame — Gwent cards sitting on the board. */
+.card-img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+}
+
+/* ---------------------------------------------------------------- */
+/* Chrome: header + footer                                          */
+/* ---------------------------------------------------------------- */
+
+.site-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--parchment);
+  text-decoration: none;
+}
+
+.brand-mark {
+  color: var(--gold);
+}
+
+.brand span {
+  color: var(--gold-bright);
+}
+
+.site-nav {
+  display: flex;
+  gap: 1.4rem;
+  margin-right: auto;
+}
+
+.site-nav a {
+  font-family: var(--font-display);
+  color: var(--steel);
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  padding: 0.25rem 0;
+  border-bottom: 2px solid transparent;
+}
+
+.site-nav a:hover {
+  color: var(--parchment);
+}
+
+.site-nav a[aria-current='page'] {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+.player-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.3rem 0.85rem 0.3rem 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--board);
+  color: var(--parchment);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+
+.player-chip:hover {
+  border-color: var(--gold);
+}
+
+.player-chip img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 22%;
+  border: 1px solid var(--gold);
+}
+
+.site-footer {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+  color: var(--steel);
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.footer-task {
+  font-style: normal;
+  letter-spacing: 0.04em;
+}
+
+/* Before registration the header carries nothing but the music toggle, so it
+   drops its rule and pushes the control to the right on its own. */
+.site-header--minimal {
+  border-bottom-color: transparent;
+}
+
+.site-header--minimal .brand,
+.site-header--minimal .site-nav,
+.site-header--minimal .player-chip {
+  display: none;
+}
+
+.site-header--minimal .music-toggle {
+  margin-left: auto;
+}
+
+.music-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--board);
+  color: var(--steel);
+  transition: color 0.14s ease, border-color 0.14s ease;
+}
+
+.music-toggle:hover {
+  color: var(--parchment);
+  border-color: var(--steel);
+}
+
+.music-toggle.is-on {
+  color: var(--gold-bright);
+  border-color: var(--gold);
+}
+
+/* ---------------------------------------------------------------- */
+/* Layout + shared pieces                                           */
+/* ---------------------------------------------------------------- */
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 3rem;
+}
+
+.screen > * + * {
+  margin-top: 1.25rem;
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 1.08;
+  font-size: clamp(2rem, 5vw, 3rem);
+  letter-spacing: 0.01em;
+}
+
+.mega {
+  font-size: clamp(2.5rem, 6.5vw, 4.4rem);
+  line-height: 1.02;
+  text-shadow: 0.05em 0.05em 0 rgba(0, 0, 0, 0.4);
+  overflow-wrap: anywhere;
+}
+
+.mega em {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 0.42em;
+  color: var(--gold-bright);
+  vertical-align: middle;
+  padding: 0 0.15em;
+  letter-spacing: 0.02em;
+}
+
+.lede {
+  max-width: 54ch;
+  color: var(--steel);
+  font-size: 1.15rem;
+}
+
+.muted {
+  color: var(--steel);
+  margin: 0.25rem 0 1rem;
+  font-size: 1.02rem;
+}
+
+.panel {
+  background: var(--board);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.panel-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.98rem;
+}
+
+.note,
+.record-line {
+  font-family: var(--font-body);
+  color: var(--steel);
+  font-size: 1.02rem;
+}
+
+.record-line b,
+.note b {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- */
+/* Motion preferences                                                */
+/* ---------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
