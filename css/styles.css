@@ -320,6 +320,145 @@ h1 {
 }
 
 /* ---------------------------------------------------------------- */
+/* Buttons + forms                                                  */
+/* ---------------------------------------------------------------- */
+
+.btn {
+  display: inline-block;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.65rem 1.5rem;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  font-size: 0.82rem;
+  text-decoration: none;
+  text-align: center;
+  background: transparent;
+  color: var(--parchment);
+}
+
+.btn--blood {
+  background: var(--blood-deep);
+  border-color: var(--blood-deep);
+}
+
+.btn--blood:hover {
+  background: var(--blood-bright);
+  border-color: var(--blood-bright);
+}
+
+.btn--ghost {
+  border-color: var(--steel);
+  color: var(--steel);
+}
+
+.btn--ghost:hover {
+  color: var(--parchment);
+  border-color: var(--parchment);
+}
+
+.btn-fight {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.2rem, 2.6vw, 1.6rem);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--parchment);
+  background: var(--blood-deep);
+  border: none;
+  border-radius: 5px;
+  padding: 0.75rem 2.6rem;
+  box-shadow: 5px 5px 0 rgba(207, 157, 71, 0.4);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.btn-fight:hover:not(:disabled) {
+  background: var(--blood-bright);
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 rgba(207, 157, 71, 0.4);
+}
+
+.btn-fight:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 rgba(207, 157, 71, 0.4);
+}
+
+.btn-fight:disabled {
+  background: var(--board-2);
+  color: var(--steel);
+  box-shadow: none;
+  cursor: url('../assets/cursors/unavailable.cur'), not-allowed;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.field-label {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.74rem;
+  color: var(--steel);
+}
+
+input[type='text'] {
+  width: 100%;
+  max-width: 380px;
+  padding: 0.75rem 1rem;
+  font: inherit;
+  font-size: 1.1rem;
+  color: var(--parchment);
+  background: var(--night);
+  border: 2px solid var(--line);
+  border-radius: 4px;
+}
+
+input[type='text']:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+input[type='text']::placeholder {
+  color: var(--steel);
+  opacity: 0.7;
+}
+
+.field-error {
+  margin: 0;
+  color: var(--danger-text);
+  font-size: 0.98rem;
+}
+
+.form-note {
+  margin: 0;
+  color: var(--gold);
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 1rem;
+}
+
+/* ---------------------------------------------------------------- */
+/* Registration                                                     */
+/* ---------------------------------------------------------------- */
+
+.screen--register {
+  max-width: 640px;
+  margin: 0 auto;
+  padding-top: 4vh;
+}
+
+.screen--register .stack {
+  margin-top: 2rem;
+}
+
+/* ---------------------------------------------------------------- */
 /* Motion preferences                                                */
 /* ---------------------------------------------------------------- */
 
