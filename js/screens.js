@@ -59,3 +59,55 @@ export function renderRegister(app) {
   input.focus();
 }
 
+/* ------------------------------------------------------------------ */
+/* Home                                                                */
+/* ------------------------------------------------------------------ */
+
+export function renderHome(app, state) {
+  const { wins, losses, draws } = state.record;
+  const battle = state.battle;
+  const inProgress = Boolean(battle && !battle.finished);
+  const opponent = inProgress ? getOpponent(battle.opponentId) : null;
+  const hero = getAvatar(state.avatarId);
+
+  app.innerHTML = `
+    <section class="screen screen--home">
+      <div class="home-grid">
+        <div class="home-copy">
+          <h1 class="mega">${esc(state.name)} <em>vs</em> ${inProgress ? esc(opponent.name) : 'whatever crawls out'}</h1>
+          <p class="lede">
+            Pick one zone to strike and two to guard. A critical hits harder and
+            cuts straight through a guard. Last one standing walks away.
+          </p>
+          <div class="home-actions">
+            <button id="start-fight" class="btn-fight">${inProgress ? 'Return to the fight' : 'Fight'}</button>
+            ${
+              inProgress
+                ? `<p class="note">Contract in progress — round ${battle.round} against
+                   <b>${esc(opponent.name)}</b>.</p>`
+                : ''
+            }
+          </div>
+          <p class="record-line">
+            Record: <b>${wins}</b> ${wins === 1 ? 'win' : 'wins'} ·
+            <b>${losses}</b> ${losses === 1 ? 'loss' : 'losses'}${
+              draws ? ` · <b>${draws}</b> ${draws === 1 ? 'draw' : 'draws'}` : ''
+            }
+          </p>
+        </div>
+        <figure class="home-hero">
+          <img class="card-img" src="${hero.src}" alt="Your hero: ${esc(hero.label)}" width="220" height="330" />
+        </figure>
+      </div>
+    </section>
+  `;
+
+  document.getElementById('start-fight').addEventListener('click', () => {
+    const current = state.battle;
+    if (current && current.finished) {
+      updateState({ battle: null });
+    }
+    go('#/fight');
+  });
+}
+

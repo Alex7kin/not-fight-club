@@ -5,12 +5,13 @@ import { loadState } from './storage.js';
 import { updateChrome } from './ui.js';
 import {
   renderRegister,
+  renderHome,
 } from './screens.js';
 
 const app = document.getElementById('app');
 
 const routes = {
-  '': { name: 'register', render: renderRegister },
+  '': { name: 'home', render: renderHome },
   register: { name: 'register', render: renderRegister },
 };
 
