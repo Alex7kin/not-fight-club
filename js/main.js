@@ -6,12 +6,14 @@ import { updateChrome } from './ui.js';
 import {
   renderRegister,
   renderHome,
+  renderCharacter,
 } from './screens.js';
 
 const app = document.getElementById('app');
 
 const routes = {
   '': { name: 'home', render: renderHome },
+  character: { name: 'character', render: renderCharacter },
   register: { name: 'register', render: renderRegister },
 };
 

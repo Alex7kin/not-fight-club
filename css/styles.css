@@ -487,6 +487,99 @@ input[type='text']::placeholder {
 }
 
 /* ---------------------------------------------------------------- */
+/* Character                                                        */
+/* ---------------------------------------------------------------- */
+
+.character-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.char-card {
+  text-align: center;
+}
+
+.char-portrait {
+  width: 100%;
+  max-width: 240px;
+  margin: 0 auto 1rem;
+}
+
+.char-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.5rem;
+  overflow-wrap: anywhere;
+}
+
+.char-record {
+  display: flex;
+  justify-content: center;
+  gap: 1.35rem;
+  margin: 0.75rem 0 0.25rem;
+  font-family: var(--font-body);
+  color: var(--steel);
+}
+
+.char-record b {
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.char-stats {
+  margin: 0.5rem 0 0;
+  color: var(--steel);
+  font-family: var(--font-display);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.avatar-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.7rem 0.6rem;
+  background: var(--night);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--steel);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: border-color 0.14s ease, transform 0.14s ease, color 0.14s ease;
+}
+
+.avatar-option .card-img {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+}
+
+.avatar-option:hover {
+  border-color: var(--steel);
+  transform: translateY(-3px);
+}
+
+.avatar-option.is-selected {
+  border-color: var(--gold);
+  color: var(--gold-bright);
+  box-shadow: 0 0 0 1px var(--gold), 0 0 22px rgba(207, 157, 71, 0.2);
+}
+
+/* ---------------------------------------------------------------- */
 /* Motion preferences                                                */
 /* ---------------------------------------------------------------- */
 
