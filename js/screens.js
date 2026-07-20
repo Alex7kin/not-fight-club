@@ -1,8 +1,9 @@
 // Screen renderers. Each takes the #app container and the current saved
 // state, paints its markup, and wires its own listeners.
 
+import { PLAYER_BASE, AVATARS, getAvatar } from './data.js';
 import { updateState } from './storage.js';
-import { esc, go } from './ui.js';
+import { esc, go, updateChrome } from './ui.js';
 
 /* ------------------------------------------------------------------ */
 /* Registration                                                        */
@@ -108,6 +109,78 @@ export function renderHome(app, state) {
       updateState({ battle: null });
     }
     go('#/fight');
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Character                                                           */
+/* ------------------------------------------------------------------ */
+
+export function renderCharacter(app, state) {
+  const avatar = getAvatar(state.avatarId);
+  const { wins, losses, draws } = state.record;
+  const critPct = Math.round(PLAYER_BASE.critChance * 100);
+
+  app.innerHTML = `
+    <section class="screen screen--character">
+      <h1>Hero</h1>
+      <div class="character-grid">
+        <article class="char-card panel">
+          <img
+            id="char-portrait"
+            class="char-portrait card-img"
+            src="${avatar.src}"
+            alt="Your hero: ${esc(avatar.label)}"
+            width="240"
+            height="360"
+          />
+          <h2 id="char-name" class="char-name">${esc(state.name)}</h2>
+          <p class="char-record">
+            <span><b>${wins}</b> ${wins === 1 ? 'win' : 'wins'}</span>
+            <span><b>${losses}</b> ${losses === 1 ? 'loss' : 'losses'}</span>
+            ${draws ? `<span><b>${draws}</b> ${draws === 1 ? 'draw' : 'draws'}</span>` : ''}
+          </p>
+          <p class="char-stats">
+            HP ${PLAYER_BASE.maxHp} · DMG ${PLAYER_BASE.damage} ·
+            CRIT ${critPct}% ×${PLAYER_BASE.critMultiplier}
+          </p>
+        </article>
+        <div class="avatar-picker panel">
+          <h2 class="panel-title">Choose your hero</h2>
+          <div class="avatar-grid" id="avatar-grid" role="group" aria-label="Hero choices">
+            ${AVATARS.map(
+              (a) => `
+                <button
+                  type="button"
+                  class="avatar-option${a.id === state.avatarId ? ' is-selected' : ''}"
+                  data-avatar="${a.id}"
+                  aria-pressed="${a.id === state.avatarId}"
+                >
+                  <img class="card-img" src="${a.src}" alt="" width="150" height="225" />
+                  <span>${esc(a.label)}</span>
+                </button>`
+            ).join('')}
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+
+  document.getElementById('avatar-grid').addEventListener('click', (e) => {
+    const button = e.target.closest('.avatar-option');
+    if (!button) return;
+    const chosen = getAvatar(button.dataset.avatar);
+    const next = updateState({ avatarId: chosen.id });
+
+    app.querySelectorAll('.avatar-option').forEach((b) => {
+      const selected = b === button;
+      b.classList.toggle('is-selected', selected);
+      b.setAttribute('aria-pressed', String(selected));
+    });
+    const portrait = document.getElementById('char-portrait');
+    portrait.src = chosen.src;
+    portrait.alt = `Your hero: ${chosen.label}`;
+    updateChrome(next, 'character');
   });
 }
 

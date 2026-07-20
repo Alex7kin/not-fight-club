@@ -21,3 +21,18 @@ export const PLAYER_BASE = {
   defendsPerTurn: 2,
 };
 
+// Playable heroes of the Continent. `label` is shown as the character name;
+// the card art already carries the full name and a quote.
+export const AVATARS = [
+  { id: 'geralt', label: 'Geralt of Rivia', src: 'assets/avatars/geralt.png' },
+  { id: 'ciri', label: 'Ciri', src: 'assets/avatars/ciri.png' },
+  { id: 'triss', label: 'Triss Merigold', src: 'assets/avatars/triss.png' },
+  { id: 'yenn', label: 'Yennefer of Vengerberg', src: 'assets/avatars/yenn.png' },
+];
+
+export const DEFAULT_AVATAR_ID = AVATARS[0].id;
+
+export function getAvatar(id) {
+  return AVATARS.find((a) => a.id === id) || AVATARS[0];
+}
+
