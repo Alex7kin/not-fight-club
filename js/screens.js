@@ -2,7 +2,7 @@
 // state, paints its markup, and wires its own listeners.
 
 import { PLAYER_BASE, AVATARS, getAvatar } from './data.js';
-import { updateState } from './storage.js';
+import { updateState, clearState } from './storage.js';
 import { esc, go, updateChrome } from './ui.js';
 
 /* ------------------------------------------------------------------ */
@@ -181,6 +181,73 @@ export function renderCharacter(app, state) {
     portrait.src = chosen.src;
     portrait.alt = `Your hero: ${chosen.label}`;
     updateChrome(next, 'character');
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Settings                                                            */
+/* ------------------------------------------------------------------ */
+
+export function renderSettings(app, state) {
+  app.innerHTML = `
+    <section class="screen screen--settings">
+      <h1>Settings</h1>
+      <form id="settings-form" class="stack panel" novalidate>
+        <label class="field-label" for="settings-name">Fighter name</label>
+        <input
+          id="settings-name"
+          type="text"
+          maxlength="24"
+          autocomplete="off"
+          value="${esc(state.name)}"
+          aria-describedby="settings-error"
+          required
+        />
+        <p class="field-error" id="settings-error" role="alert" hidden>A fighter needs a name — two characters or more.</p>
+        <button type="submit" class="btn btn--blood">Save name</button>
+        <p class="form-note" id="settings-saved" role="status" hidden>Saved. The Continent will learn it.</p>
+      </form>
+      <div class="danger panel">
+        <h2 class="panel-title">Break the contract</h2>
+        <p class="muted">Wipes your name, your record, and any fight in progress.</p>
+        <button type="button" id="reset-progress" class="btn btn--ghost">Reset everything</button>
+      </div>
+    </section>
+  `;
+
+  const form = document.getElementById('settings-form');
+  const input = document.getElementById('settings-name');
+  const error = document.getElementById('settings-error');
+  const saved = document.getElementById('settings-saved');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = input.value.trim();
+    if (name.length < 2) {
+      error.hidden = false;
+      saved.hidden = true;
+      input.setAttribute('aria-invalid', 'true');
+      input.focus();
+      return;
+    }
+    const next = updateState({ name });
+    updateChrome(next, 'settings');
+    error.hidden = true;
+    input.removeAttribute('aria-invalid');
+    saved.hidden = false;
+  });
+
+  input.addEventListener('input', () => {
+    error.hidden = true;
+    input.removeAttribute('aria-invalid');
+    saved.hidden = true;
+  });
+
+  document.getElementById('reset-progress').addEventListener('click', () => {
+    const sure = window.confirm('Break the contract? Name, record, and current fight are gone for good.');
+    if (!sure) return;
+    clearState();
+    go('#/');
   });
 }
 

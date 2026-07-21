@@ -7,6 +7,7 @@ import {
   renderRegister,
   renderHome,
   renderCharacter,
+  renderSettings,
 } from './screens.js';
 
 const app = document.getElementById('app');
@@ -14,6 +15,7 @@ const app = document.getElementById('app');
 const routes = {
   '': { name: 'home', render: renderHome },
   character: { name: 'character', render: renderCharacter },
+  settings: { name: 'settings', render: renderSettings },
   register: { name: 'register', render: renderRegister },
 };
 
