@@ -36,3 +36,77 @@ export function getAvatar(id) {
   return AVATARS.find((a) => a.id === id) || AVATARS[0];
 }
 
+// Each monster has a fixed profile: which zones it may strike, which it may
+// guard, and how many of each it picks per turn. Actual picks are randomized
+// within the profile every turn, without repeats.
+export const OPPONENTS = [
+  {
+    id: 'griffin',
+    name: 'Griffin',
+    src: 'assets/opponents/griffin.png',
+    maxHp: 90,
+    damage: 16,
+    critChance: 0.22,
+    critMultiplier: 1.5,
+    attacksPerTurn: 1,
+    defendsPerTurn: 2,
+    attackZones: ['head', 'chest', 'arms'],
+    defenseZones: ['head', 'chest', 'arms', 'legs'],
+  },
+  {
+    id: 'leshen',
+    name: 'Leshen',
+    src: 'assets/opponents/leshen.png',
+    maxHp: 130,
+    damage: 13,
+    critChance: 0.1,
+    critMultiplier: 1.5,
+    attacksPerTurn: 1,
+    defendsPerTurn: 3,
+    attackZones: ['chest', 'stomach', 'arms', 'legs'],
+    defenseZones: ['head', 'chest', 'stomach', 'arms', 'legs'],
+  },
+  {
+    id: 'fiend',
+    name: 'Fiend',
+    src: 'assets/opponents/fiend.png',
+    maxHp: 120,
+    damage: 18,
+    critChance: 0.15,
+    critMultiplier: 1.5,
+    attacksPerTurn: 1,
+    defendsPerTurn: 1,
+    attackZones: ['head', 'chest', 'stomach'],
+    defenseZones: ['head', 'chest', 'stomach'],
+  },
+  {
+    id: 'katakan',
+    name: 'Katakan',
+    src: 'assets/opponents/katakan.png',
+    maxHp: 80,
+    damage: 10,
+    critChance: 0.3,
+    critMultiplier: 1.5,
+    attacksPerTurn: 2,
+    defendsPerTurn: 1,
+    attackZones: ['head', 'chest', 'stomach', 'arms', 'legs'],
+    defenseZones: ['head', 'chest', 'arms'],
+  },
+  {
+    id: 'werewolf',
+    name: 'Werewolf',
+    src: 'assets/opponents/werewolf.png',
+    maxHp: 95,
+    damage: 12,
+    critChance: 0.2,
+    critMultiplier: 1.5,
+    attacksPerTurn: 2,
+    defendsPerTurn: 2,
+    attackZones: ['head', 'chest', 'stomach', 'arms', 'legs'],
+    defenseZones: ['chest', 'stomach', 'arms', 'legs'],
+  },
+];
+
+export function getOpponent(id) {
+  return OPPONENTS.find((o) => o.id === id) || OPPONENTS[0];
+}
