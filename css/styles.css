@@ -592,6 +592,341 @@ input[type='text']::placeholder {
 }
 
 /* ---------------------------------------------------------------- */
+/* Fight: the pit                                                   */
+/* ---------------------------------------------------------------- */
+
+.ring {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.fighter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  background: var(--board);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.card-frame {
+  position: relative;
+  width: 100%;
+  max-width: 200px;
+}
+
+.fighter-avatar {
+  width: 100%;
+}
+
+.fighter-info {
+  width: 100%;
+  min-width: 0;
+  text-align: center;
+}
+
+.fighter-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.3rem;
+  overflow-wrap: anywhere;
+}
+
+.fighter-tag {
+  margin: 0.25rem auto 0.7rem;
+  max-width: 26ch;
+  color: var(--steel);
+  font-family: var(--font-display);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+}
+
+.hp {
+  height: 15px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--night),
+    var(--night) 6px,
+    var(--board-2) 6px,
+    var(--board-2) 12px
+  );
+  overflow: hidden;
+}
+
+.hp-fill {
+  height: 100%;
+  background: linear-gradient(180deg, var(--blood-bright), var(--blood));
+  border-radius: 999px;
+  transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hp-fill--low {
+  background: linear-gradient(180deg, #e6a13c, var(--blood-bright));
+}
+
+.hp-num {
+  margin: 0.45rem 0 0;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  color: var(--steel);
+}
+
+.hp-num b {
+  color: var(--parchment);
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.vs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 2rem 0.5rem 0;
+  text-align: center;
+}
+
+.vs-round {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.vs-mark {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 2.4rem;
+  color: var(--blood-bright);
+  line-height: 1;
+}
+
+/* ---------------------------------------------------------------- */
+/* Fight: on-card zone pickers + commit                             */
+/* ---------------------------------------------------------------- */
+
+
+
+/* The five target bands laid over the card art. */
+.zone-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: repeat(5, 1fr);
+  border-radius: 6px;
+  overflow: hidden;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.zone-hit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: rgba(8, 6, 4, 0.28);
+  color: var(--parchment);
+  cursor: url('../assets/cursors/pointer.png'), pointer;
+  transition: background 0.12s ease;
+}
+
+.zone-hit + .zone-hit {
+  border-top: 1px solid rgba(233, 221, 192, 0.18);
+}
+
+.zone-hit-label {
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95);
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+
+/* Hover a single band. */
+.zone-overlay--attack .zone-hit:hover {
+  background: rgba(217, 69, 47, 0.34);
+}
+
+.zone-overlay--defense .zone-hit:hover {
+  background: rgba(207, 157, 71, 0.3);
+}
+
+/* Persistent selection — visible even when the overlay is at rest. */
+.zone-overlay--attack .zone-hit.is-selected {
+  background: rgba(217, 69, 47, 0.46);
+  box-shadow: inset 5px 0 0 var(--blood-bright);
+}
+
+.zone-overlay--defense .zone-hit.is-selected {
+  background: rgba(207, 157, 71, 0.42);
+  box-shadow: inset 5px 0 0 var(--gold);
+}
+
+.zone-hit.is-selected .zone-hit-label {
+  color: #fff;
+}
+
+/* On pointer devices the picker hides until you hover or focus the card, so
+   the art reads first; selections stay visible regardless. Touch and
+   keyboard users always see it (no hover, or via :focus-within). */
+@media (hover: hover) {
+  .zone-hit {
+    background: transparent;
+  }
+
+  .zone-hit-label {
+    opacity: 0;
+  }
+
+  .zone-hit.is-selected .zone-hit-label {
+    opacity: 1;
+  }
+
+  .card-frame.is-interactive:hover .zone-overlay,
+  .card-frame.is-interactive:focus-within .zone-overlay {
+    background: rgba(8, 6, 4, 0.5);
+  }
+
+  .card-frame.is-interactive:hover .zone-hit-label,
+  .card-frame.is-interactive:focus-within .zone-hit-label {
+    opacity: 1;
+  }
+}
+
+.commit-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 1.75rem;
+  text-align: center;
+}
+
+/* A disabled button receives no pointer events, so the wrapper is what
+   catches :hover — and carries the not-allowed cursor in its place. */
+.swing-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.swing-wrap.is-blocked {
+  cursor: url('../assets/cursors/unavailable.cur'), not-allowed;
+}
+
+.swing-tip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  z-index: 5;
+  width: max-content;
+  max-width: min(20rem, 78vw);
+  padding: 0.5rem 0.85rem;
+  border-radius: 3px;
+  background: var(--parchment);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.98rem;
+  line-height: 1.35;
+  text-align: center;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(4px);
+  transition: opacity 0.14s ease, transform 0.14s ease;
+}
+
+/* Torn-note point aimed at the button. */
+.swing-tip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--parchment);
+}
+
+.swing-wrap.is-blocked:hover .swing-tip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.commit-hint {
+  margin: 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 1.02rem;
+  color: var(--steel);
+  max-width: 44ch;
+}
+
+/* ---------------------------------------------------------------- */
+/* Fight: verdict                                                   */
+/* ---------------------------------------------------------------- */
+
+.verdict {
+  margin-top: 1.5rem;
+  text-align: center;
+  background: var(--board);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 2rem 1.5rem;
+}
+
+.verdict-word {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2rem, 5.5vw, 3.4rem);
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.verdict--win .verdict-word {
+  color: var(--gold-bright);
+}
+
+.verdict--loss .verdict-word {
+  color: var(--blood-bright);
+}
+
+.verdict--draw .verdict-word {
+  color: var(--steel);
+}
+
+.verdict-note {
+  margin: 0.75rem 0 1.5rem;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--steel);
+}
+
+.verdict-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* ---------------------------------------------------------------- */
 /* Motion preferences                                                */
 /* ---------------------------------------------------------------- */
 

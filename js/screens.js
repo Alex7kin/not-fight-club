@@ -1,8 +1,9 @@
 // Screen renderers. Each takes the #app container and the current saved
 // state, paints its markup, and wires its own listeners.
 
-import { PLAYER_BASE, AVATARS, getAvatar } from './data.js';
+import { ZONES, ZONE_LABELS, PLAYER_BASE, AVATARS, getAvatar, getOpponent } from './data.js';
 import { updateState, clearState } from './storage.js';
+import { createBattle, resolveTurn } from './battle.js';
 import { esc, go, updateChrome } from './ui.js';
 
 /* ------------------------------------------------------------------ */
@@ -249,5 +250,228 @@ export function renderSettings(app, state) {
     clearState();
     go('#/');
   });
+}
+
+/* ------------------------------------------------------------------ */
+/* Fight                                                               */
+/* ------------------------------------------------------------------ */
+
+function pctWidth(hp, maxHp) {
+  return `${Math.max(0, Math.min(100, (hp / maxHp) * 100))}%`;
+}
+
+// The zone picker that lives on a fighter card. `panel` is 'attack' (the
+// enemy card — pick 1 to strike) or 'defense' (your card — pick 2 to guard).
+// It reveals on hover on pointer devices and stays put on touch/keyboard.
+function zoneOverlay(panel) {
+  const label =
+    panel === 'attack'
+      ? 'Choose a zone to strike — pick 1'
+      : 'Choose a zone to guard — pick 2';
+  const hits = ZONES.map(
+    (z) => `
+        <button type="button" class="zone-hit" data-zone="${z.id}" aria-pressed="false">
+          <span class="zone-hit-label">${z.label}</span>
+        </button>`
+  ).join('');
+  return `
+    <div class="zone-overlay zone-overlay--${panel}" data-panel="${panel}" role="group" aria-label="${label}">
+      ${hits}
+    </div>`;
+}
+
+function fighterCard({ side, name, src, tag, hp, maxHp, interactive, panel }) {
+  const low = hp / maxHp <= 0.3;
+  return `
+    <article class="fighter fighter--${side}">
+      <div class="card-frame${interactive ? ' is-interactive' : ''}">
+        <img class="fighter-avatar card-img" src="${src}" alt="" width="200" height="300" />
+        ${interactive ? zoneOverlay(panel) : ''}
+      </div>
+      <div class="fighter-info">
+        <h2 class="fighter-name">${esc(name)}</h2>
+        <p class="fighter-tag">${esc(tag)}</p>
+        <div class="hp" role="img" aria-label="${esc(name)}: ${hp} of ${maxHp} health">
+          <div class="hp-fill${low ? ' hp-fill--low' : ''}" style="width:${pctWidth(hp, maxHp)}"></div>
+        </div>
+        <p class="hp-num"><b>${hp}</b> / ${maxHp}</p>
+      </div>
+    </article>
+  `;
+}
+
+function statTag(f) {
+  return `DMG ${f.damage} · CRIT ${Math.round(f.critChance * 100)}%`;
+}
+
+function verdictHtml(battle) {
+  const word = { win: 'Contract fulfilled', loss: 'You died', draw: 'Both died' }[battle.result];
+  const note = {
+    win: 'Toss a coin to your Witcher.',
+    loss: 'The Witcher never dies in his bed.',
+    draw: 'In the end, death always wins.',
+  }[battle.result];
+  return `
+    <div class="verdict verdict--${battle.result}">
+      <p class="verdict-word">${word}</p>
+      <p class="verdict-note">${note}</p>
+      <div class="verdict-actions">
+        <button type="button" id="rematch-btn" class="btn btn--blood">Fight again</button>
+        <a href="#/" class="btn btn--ghost">Back to the Contract</a>
+      </div>
+    </div>
+  `;
+}
+
+function commitBarHtml() {
+  return `
+    <div class="commit-bar">
+      <button type="button" id="swing-btn" class="btn-fight" disabled>Swing</button>
+      <p class="commit-hint" id="commit-hint" aria-live="polite">Strike 0/1 · Guard 0/2</p>
+    </div>
+  `;
+}
+
+export function renderFight(app, state, prevHp) {
+  let battle = state.battle;
+  if (!battle) {
+    battle = createBattle(state.name);
+    state = updateState({ battle });
+  }
+  const opponent = getOpponent(battle.opponentId);
+
+  app.innerHTML = `
+    <section class="screen screen--fight">
+      <div class="ring">
+        ${fighterCard({
+          side: 'you',
+          name: state.name,
+          src: getAvatar(state.avatarId).src,
+          tag: statTag(PLAYER_BASE),
+          hp: battle.playerHp,
+          maxHp: PLAYER_BASE.maxHp,
+          interactive: !battle.finished,
+          panel: 'defense',
+        })}
+        <div class="vs">
+          <span class="vs-round">Round ${battle.round}</span>
+          <span class="vs-mark">vs</span>
+        </div>
+        ${fighterCard({
+          side: 'opp',
+          name: opponent.name,
+          src: opponent.src,
+          tag: statTag(opponent),
+          hp: battle.opponentHp,
+          maxHp: opponent.maxHp,
+          interactive: !battle.finished,
+          panel: 'attack',
+        })}
+      </div>
+      ${battle.finished ? verdictHtml(battle) : commitBarHtml()}
+    </section>
+  `;
+
+  // Animate HP bars from their pre-turn values, and — since the whole screen
+  // was just replaced — announce the outcome and move focus somewhere useful
+  // so keyboard and screen-reader users aren't dropped back at the page top.
+  if (prevHp) {
+    const youFill = app.querySelector('.fighter--you .hp-fill');
+    const oppFill = app.querySelector('.fighter--opp .hp-fill');
+    youFill.style.width = pctWidth(prevHp.player, PLAYER_BASE.maxHp);
+    oppFill.style.width = pctWidth(prevHp.opponent, opponent.maxHp);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        youFill.style.width = pctWidth(battle.playerHp, PLAYER_BASE.maxHp);
+        oppFill.style.width = pctWidth(battle.opponentHp, opponent.maxHp);
+      });
+    });
+  }
+
+  if (battle.finished) {
+    const rematch = document.getElementById('rematch-btn');
+    rematch.addEventListener('click', () => {
+      updateState({ battle: null });
+      go('#/fight');
+    });
+    return;
+  }
+
+  const attackSel = new Set();
+  const defenseSel = new Set();
+  const swingBtn = document.getElementById('swing-btn');
+  const hint = document.getElementById('commit-hint');
+
+  function syncPanel(panel, selection) {
+    app.querySelectorAll(`[data-panel="${panel}"] .zone-hit`).forEach((b) => {
+      const on = selection.has(b.dataset.zone);
+      b.classList.toggle('is-selected', on);
+      b.setAttribute('aria-pressed', String(on));
+    });
+  }
+
+  function syncControls() {
+    syncPanel('attack', attackSel);
+    syncPanel('defense', defenseSel);
+    const ready = attackSel.size === 1 && defenseSel.size === 2;
+    swingBtn.disabled = !ready;
+    hint.textContent = ready
+      ? 'Ready. Swing when you are.'
+      : `Strike ${attackSel.size}/1 · Guard ${defenseSel.size}/2`;
+  }
+
+  app.querySelector('[data-panel="attack"]').addEventListener('click', (e) => {
+    const btn = e.target.closest('.zone-hit');
+    if (!btn) return;
+    const zone = btn.dataset.zone;
+    if (attackSel.has(zone)) {
+      attackSel.delete(zone);
+    } else {
+      attackSel.clear();
+      attackSel.add(zone);
+    }
+    syncControls();
+  });
+
+  app.querySelector('[data-panel="defense"]').addEventListener('click', (e) => {
+    const btn = e.target.closest('.zone-hit');
+    if (!btn) return;
+    const zone = btn.dataset.zone;
+    if (defenseSel.has(zone)) {
+      defenseSel.delete(zone);
+    } else {
+      if (defenseSel.size >= 2) {
+        const oldest = defenseSel.values().next().value;
+        defenseSel.delete(oldest);
+      }
+      defenseSel.add(zone);
+    }
+    syncControls();
+  });
+
+  swingBtn.addEventListener('click', () => {
+    if (attackSel.size !== 1 || defenseSel.size !== 2) return;
+    const prev = { player: battle.playerHp, opponent: battle.opponentHp };
+    const next = resolveTurn(battle, state.name, [...attackSel][0], [...defenseSel]);
+
+    let record = state.record;
+    if (next.finished) {
+      record = { ...state.record };
+      if (next.result === 'win') record.wins += 1;
+      else if (next.result === 'loss') record.losses += 1;
+      else record.draws += 1;
+    }
+    const nextState = updateState({ battle: next, record });
+    renderFight(app, nextState, prev);
+  });
+
+  syncControls();
+
+  // After a resolved turn the controls are freshly rendered; put keyboard
+  // focus on the first strike zone (on the monster's card) so the next move
+  // is one keystroke away — and so its overlay reveals via :focus-within.
+  if (prevHp) {
+    app.querySelector('[data-panel="attack"] .zone-hit')?.focus();
+  }
 }
 
