@@ -927,6 +927,151 @@ input[type='text']::placeholder {
 }
 
 /* ---------------------------------------------------------------- */
+/* Fight: the contract (signature element)                          */
+/* ---------------------------------------------------------------- */
+
+.report {
+  position: relative;
+  max-width: 720px;
+  margin: 2.5rem auto 0.75rem;
+  background: var(--parchment);
+  background-image:
+    radial-gradient(120% 90% at 50% 0%, rgba(255, 250, 235, 0.5), transparent 55%),
+    radial-gradient(140% 120% at 100% 100%, rgba(120, 92, 48, 0.14), transparent 60%);
+  color: var(--ink);
+  font-family: var(--font-body);
+  border-radius: 3px;
+  transform: rotate(-0.5deg);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.5);
+}
+
+/* Wax seal pinning the contract to the board. */
+.report::before {
+  content: '';
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  width: 30px;
+  height: 30px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #d24a34, var(--blood) 58%, #6c130e);
+  box-shadow: 0 0 0 2px rgba(207, 157, 71, 0.55), 0 6px 12px rgba(0, 0, 0, 0.5);
+}
+
+.report-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 1.15rem 1.6rem 0.7rem;
+  border-bottom: 2px solid var(--ink);
+  box-shadow: 0 4px 0 -2px var(--blood);
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.92rem;
+}
+
+.report-no {
+  font-family: var(--font-display);
+  letter-spacing: 0.05em;
+  color: var(--blood-ink);
+}
+
+.report-list {
+  list-style: none;
+  margin: 0;
+  padding: 1rem 1.6rem 1.5rem;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent calc(1.85em - 1px),
+    rgba(36, 28, 16, 0.09) calc(1.85em - 1px),
+    rgba(36, 28, 16, 0.09) 1.85em
+  );
+  font-size: 1.06rem;
+  line-height: 1.85;
+}
+
+.report-entry {
+  padding: 0.1rem 0;
+}
+
+.report-entry--sys {
+  font-style: italic;
+  opacity: 0.75;
+}
+
+.report-entry--sys::before {
+  content: '- ';
+}
+
+.report-entry--crit {
+  background: rgba(168, 38, 31, 0.08);
+}
+
+.report-round {
+  text-align: center;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  font-size: 0.72rem;
+  opacity: 0.6;
+  padding: 0.4rem 0 0.15rem;
+}
+
+.log-who,
+.log-whom {
+  font-weight: 600;
+  background: rgba(207, 157, 71, 0.34);
+  padding: 0 0.15em;
+}
+
+.log-where {
+  border-bottom: 2px solid var(--blood);
+  font-weight: 600;
+}
+
+.log-dmg {
+  color: var(--blood-ink);
+  font-weight: 700;
+}
+
+.log-dmg--zero {
+  color: var(--ink);
+  opacity: 0.55;
+}
+
+.log-note {
+  font-style: italic;
+  opacity: 0.7;
+  font-size: 0.9em;
+}
+
+.stamp {
+  display: inline-block;
+  margin-left: 0.3em;
+  padding: 0 0.4em;
+  border: 2px solid var(--blood-ink);
+  border-radius: 3px;
+  color: var(--blood-ink);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transform: rotate(-4deg);
+  vertical-align: middle;
+}
+
+.stamp--block {
+  border-color: rgba(36, 28, 16, 0.6);
+  color: rgba(36, 28, 16, 0.6);
+  transform: rotate(3deg);
+}
+
+/* ---------------------------------------------------------------- */
 /* Motion preferences                                                */
 /* ---------------------------------------------------------------- */
 
