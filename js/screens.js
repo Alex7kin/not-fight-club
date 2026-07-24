@@ -304,6 +304,61 @@ function statTag(f) {
   return `DMG ${f.damage} · CRIT ${Math.round(f.critChance * 100)}%`;
 }
 
+function entryHtml(e) {
+  if (e.t === 'sys') {
+    return `<li class="report-entry report-entry--sys">${esc(e.text)}</li>`;
+  }
+  const who = `<b class="log-who">${esc(e.who)}</b>`;
+  const whom = `<b class="log-whom">${esc(e.whom)}</b>`;
+  const where = `<span class="log-where">${esc(ZONE_LABELS[e.zone].toLowerCase())}</span>`;
+  if (e.t === 'block') {
+    return `
+      <li class="report-entry report-entry--block">
+        ${who} swings at ${whom} · ${where} ·
+        <span class="log-dmg log-dmg--zero">0 dmg</span>
+        <span class="stamp stamp--block">parried</span>
+      </li>`;
+  }
+  const stamp = e.t === 'crit' ? '<span class="stamp stamp--crit">critical</span>' : '';
+  const note = e.brokeGuard ? '<span class="log-note">— straight through the guard</span>' : '';
+  return `
+    <li class="report-entry${e.t === 'crit' ? ' report-entry--crit' : ''}">
+      ${who} hits ${whom} · ${where} ·
+      <span class="log-dmg">${e.dmg} dmg</span>
+      ${stamp}${note}
+    </li>`;
+}
+
+function reportHtml(battle, state) {
+  const { wins, losses, draws } = state.record;
+  const boutNo = wins + losses + draws + (battle.finished ? 0 : 1);
+
+  const groups = new Map();
+  for (const e of battle.log) {
+    if (!groups.has(e.round)) groups.set(e.round, []);
+    groups.get(e.round).push(e);
+  }
+  const rounds = [...groups.keys()].sort((a, b) => b - a);
+  const entries = rounds
+    .map((r) => {
+      const marker = r === 0 ? '' : `<li class="report-round" aria-hidden="true">· round ${r} ·</li>`;
+      return marker + groups.get(r).map(entryHtml).join('');
+    })
+    .join('');
+
+  return `
+    <section class="report" aria-label="Contract log">
+      <header class="report-head">
+        <span class="report-title">Contract</span>
+        <span class="report-no">№ ${boutNo}</span>
+      </header>
+      <ol class="report-list" aria-live="polite">
+        ${entries}
+      </ol>
+    </section>
+  `;
+}
+
 function verdictHtml(battle) {
   const word = { win: 'Contract fulfilled', loss: 'You died', draw: 'Both died' }[battle.result];
   const note = {
@@ -369,6 +424,7 @@ export function renderFight(app, state, prevHp) {
         })}
       </div>
       ${battle.finished ? verdictHtml(battle) : commitBarHtml()}
+      ${reportHtml(battle, state)}
     </section>
   `;
 
