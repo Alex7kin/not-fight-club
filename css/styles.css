@@ -1072,6 +1072,61 @@ input[type='text']::placeholder {
 }
 
 /* ---------------------------------------------------------------- */
+/* Responsive                                                        */
+/* ---------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+
+  .home-hero {
+    max-width: 210px;
+    order: -1;
+  }
+
+  .ring {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .vs {
+    flex-direction: row;
+    gap: 1rem;
+    padding: 0;
+  }
+
+  .vs-mark {
+    font-size: 1.6rem;
+  }
+
+  .vs-tag {
+    max-width: none;
+  }
+
+  .character-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-header {
+    gap: 0.75rem;
+  }
+
+  .report {
+    transform: none;
+  }
+
+  .report-head,
+  .report-list {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* ---------------------------------------------------------------- */
 /* Motion preferences                                                */
 /* ---------------------------------------------------------------- */
 
