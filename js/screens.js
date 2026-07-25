@@ -4,7 +4,7 @@
 import { ZONES, ZONE_LABELS, PLAYER_BASE, AVATARS, getAvatar, getOpponent } from './data.js';
 import { updateState, clearState } from './storage.js';
 import { createBattle, resolveTurn } from './battle.js';
-import { esc, go, updateChrome } from './ui.js';
+import { esc, go, updateChrome, announce } from './ui.js';
 
 /* ------------------------------------------------------------------ */
 /* Registration                                                        */
@@ -379,9 +379,15 @@ function verdictHtml(battle) {
 }
 
 function commitBarHtml() {
+  // The button is wrapped because a disabled button swallows no pointer
+  // events — the wrapper is what actually receives :hover, which is how the
+  // tooltip can explain why Swing is still locked.
   return `
     <div class="commit-bar">
-      <button type="button" id="swing-btn" class="btn-fight" disabled>Swing</button>
+      <span class="swing-wrap" id="swing-wrap">
+        <button type="button" id="swing-btn" class="btn-fight" disabled>Swing</button>
+        <span class="swing-tip" id="swing-tip" aria-hidden="true"></span>
+      </span>
       <p class="commit-hint" id="commit-hint" aria-live="polite">Strike 0/1 · Guard 0/2</p>
     </div>
   `;
@@ -442,6 +448,16 @@ export function renderFight(app, state, prevHp) {
         oppFill.style.width = pctWidth(battle.opponentHp, opponent.maxHp);
       });
     });
+
+    const youDealt = prevHp.opponent - battle.opponentHp;
+    const youTook = prevHp.player - battle.playerHp;
+    let summary =
+      `You dealt ${youDealt} to ${opponent.name} and took ${youTook}. ` +
+      `Your health ${battle.playerHp}, ${opponent.name} ${battle.opponentHp}.`;
+    if (battle.finished) {
+      summary += ` ${{ win: 'You win the bout.', loss: 'You lose the bout.', draw: 'The bout is a draw.' }[battle.result]}`;
+    }
+    announce(summary);
   }
 
   if (battle.finished) {
@@ -450,6 +466,7 @@ export function renderFight(app, state, prevHp) {
       updateState({ battle: null });
       go('#/fight');
     });
+    if (prevHp) rematch.focus();
     return;
   }
 
@@ -457,6 +474,8 @@ export function renderFight(app, state, prevHp) {
   const defenseSel = new Set();
   const swingBtn = document.getElementById('swing-btn');
   const hint = document.getElementById('commit-hint');
+  const swingWrap = document.getElementById('swing-wrap');
+  const swingTip = document.getElementById('swing-tip');
 
   function syncPanel(panel, selection) {
     app.querySelectorAll(`[data-panel="${panel}"] .zone-hit`).forEach((b) => {
@@ -474,6 +493,21 @@ export function renderFight(app, state, prevHp) {
     hint.textContent = ready
       ? 'Ready. Swing when you are.'
       : `Strike ${attackSel.size}/1 · Guard ${defenseSel.size}/2`;
+
+    // While Swing is locked, hovering it explains exactly what's missing.
+    swingWrap.classList.toggle('is-blocked', !ready);
+    if (!ready) {
+      const needStrike = attackSel.size !== 1;
+      const guardsLeft = 2 - defenseSel.size;
+      const parts = [];
+      if (needStrike) parts.push("1 strike on the monster's card");
+      if (guardsLeft > 0) {
+        const more = defenseSel.size > 0 ? 'more ' : '';
+        const where = needStrike ? 'yours' : 'your card';
+        parts.push(`${guardsLeft} ${more}guard${guardsLeft === 1 ? '' : 's'} on ${where}`);
+      }
+      swingTip.textContent = `Pick ${parts.join(' and ')}.`;
+    }
   }
 
   app.querySelector('[data-panel="attack"]').addEventListener('click', (e) => {

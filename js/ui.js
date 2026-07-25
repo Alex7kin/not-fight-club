@@ -9,6 +9,20 @@ export function esc(value) {
   ));
 }
 
+// Push a message to the persistent live region so screen readers hear it,
+// even though the screen it describes was just re-rendered.
+export function announce(message) {
+  const region = document.getElementById('sr-status');
+  if (!region) return;
+  // A live region only re-announces when its text changes, so clear first,
+  // then set on the next tick. setTimeout (not rAF) so it still fires when the
+  // tab isn't visible.
+  region.textContent = '';
+  setTimeout(() => {
+    region.textContent = message;
+  }, 50);
+}
+
 // Navigate by hash; if we're already there, ask the app to re-render.
 export function go(hash) {
   if (location.hash === hash) {
