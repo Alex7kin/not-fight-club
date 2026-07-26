@@ -3,6 +3,7 @@
 
 import { loadState } from './storage.js';
 import { updateChrome } from './ui.js';
+import { initAudio } from './audio.js';
 import {
   renderRegister,
   renderHome,
@@ -44,4 +45,7 @@ function render() {
 window.addEventListener('hashchange', render);
 window.addEventListener('app:render', render);
 render();
+
+// The music button lives in the static header, so it only needs wiring once.
+initAudio();
 

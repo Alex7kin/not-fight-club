@@ -4,7 +4,7 @@
 import { DEFAULT_AVATAR_ID } from './data.js';
 
 
-const KEY = 'not-fight-club:v1';
+const KEY = 'not-fight-club:v3';
 
 function defaults() {
   return {
@@ -12,6 +12,9 @@ function defaults() {
     avatarId: DEFAULT_AVATAR_ID,
     record: { wins: 0, losses: 0, draws: 0 },
     battle: null,
+    // On by default. Browsers still block autoplay, so the track starts at the
+    // player's first click or keypress.
+    musicOn: true,
   };
 }
 
