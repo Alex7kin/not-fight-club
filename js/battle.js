@@ -1,7 +1,7 @@
 ﻿// Battle engine. Pure state-in, state-out where possible so every turn can be
 // persisted and a reload resumes the bout exactly where it stopped.
 
-import { PLAYER_BASE, OPPONENTS, getOpponent } from './data.js';
+import { PLAYER_BASE, getOpponent, getLadderOpponent } from './data.js';
 
 function randomInt(max) {
   return Math.floor(Math.random() * max);
@@ -17,8 +17,10 @@ export function sampleDistinct(arr, n) {
   return out;
 }
 
-export function createBattle(playerName) {
-  const opponent = OPPONENTS[randomInt(OPPONENTS.length)];
+// The opponent is set by ladder position, not chance: `wins` is how many rungs
+// the player has already cleared.
+export function createBattle(playerName, wins = 0) {
+  const opponent = getLadderOpponent(wins);
   return {
     opponentId: opponent.id,
     playerHp: PLAYER_BASE.maxHp,
