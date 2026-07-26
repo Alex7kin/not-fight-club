@@ -38,7 +38,10 @@ export function updateChrome(state, route) {
   const chip = document.getElementById('player-chip');
   const signedIn = Boolean(state.name);
 
-  header.hidden = !signedIn;
+  // The header stays up even before registration so the music toggle is
+  // always reachable — it just drops back to that one control.
+  header.hidden = false;
+  header.classList.toggle('site-header--minimal', !signedIn);
   footer.hidden = !signedIn;
   if (!signedIn) return;
 

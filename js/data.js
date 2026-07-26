@@ -39,74 +39,97 @@ export function getAvatar(id) {
 // Each monster has a fixed profile: which zones it may strike, which it may
 // guard, and how many of each it picks per turn. Actual picks are randomized
 // within the profile every turn, without repeats.
+// The ladder, in order: rung 1 is the first contract and the easiest, rung 5
+// is the last and the hardest. Each rung raises HP, damage per turn, guards
+// and crit chance together, while keeping a distinct attack/defense profile.
+//
+// Every entry obeys the balance rule (maxHp >= 3 * damage), and the player's
+// 120 HP outlasts even the top rung's output for well over three turns.
 export const OPPONENTS = [
   {
     id: 'griffin',
     name: 'Griffin',
     src: 'assets/opponents/griffin.png',
-    maxHp: 90,
-    damage: 16,
-    critChance: 0.22,
+    maxHp: 60,
+    damage: 9, //  9 per turn
+    critChance: 0.08,
     critMultiplier: 1.5,
     attacksPerTurn: 1,
-    defendsPerTurn: 2,
+    defendsPerTurn: 1,
     attackZones: ['head', 'chest', 'arms'],
-    defenseZones: ['head', 'chest', 'arms', 'legs'],
-  },
-  {
-    id: 'leshen',
-    name: 'Leshen',
-    src: 'assets/opponents/leshen.png',
-    maxHp: 130,
-    damage: 13,
-    critChance: 0.1,
-    critMultiplier: 1.5,
-    attacksPerTurn: 1,
-    defendsPerTurn: 3,
-    attackZones: ['chest', 'stomach', 'arms', 'legs'],
-    defenseZones: ['head', 'chest', 'stomach', 'arms', 'legs'],
-  },
-  {
-    id: 'fiend',
-    name: 'Fiend',
-    src: 'assets/opponents/fiend.png',
-    maxHp: 120,
-    damage: 18,
-    critChance: 0.15,
-    critMultiplier: 1.5,
-    attacksPerTurn: 1,
-    defendsPerTurn: 1,
-    attackZones: ['head', 'chest', 'stomach'],
-    defenseZones: ['head', 'chest', 'stomach'],
-  },
-  {
-    id: 'katakan',
-    name: 'Katakan',
-    src: 'assets/opponents/katakan.png',
-    maxHp: 80,
-    damage: 10,
-    critChance: 0.3,
-    critMultiplier: 1.5,
-    attacksPerTurn: 2,
-    defendsPerTurn: 1,
-    attackZones: ['head', 'chest', 'stomach', 'arms', 'legs'],
     defenseZones: ['head', 'chest', 'arms'],
   },
   {
     id: 'werewolf',
     name: 'Werewolf',
     src: 'assets/opponents/werewolf.png',
-    maxHp: 95,
-    damage: 12,
-    critChance: 0.2,
+    maxHp: 80,
+    damage: 7, // 14 per turn
+    critChance: 0.12,
     critMultiplier: 1.5,
     attacksPerTurn: 2,
     defendsPerTurn: 2,
     attackZones: ['head', 'chest', 'stomach', 'arms', 'legs'],
     defenseZones: ['chest', 'stomach', 'arms', 'legs'],
   },
+  {
+    id: 'katakan',
+    name: 'Katakan',
+    src: 'assets/opponents/katakan.png',
+    maxHp: 95,
+    damage: 9, // 18 per turn
+    critChance: 0.18,
+    critMultiplier: 1.5,
+    attacksPerTurn: 2,
+    defendsPerTurn: 2,
+    attackZones: ['head', 'chest', 'stomach', 'arms', 'legs'],
+    defenseZones: ['head', 'chest', 'arms'],
+  },
+  {
+    id: 'fiend',
+    name: 'Fiend',
+    src: 'assets/opponents/fiend.png',
+    maxHp: 115,
+    damage: 22, // 22 per turn — one crushing blow
+    critChance: 0.22,
+    critMultiplier: 1.5,
+    attacksPerTurn: 1,
+    defendsPerTurn: 2,
+    attackZones: ['head', 'chest', 'stomach'],
+    defenseZones: ['head', 'chest', 'stomach'],
+  },
+  {
+    id: 'leshen',
+    name: 'Leshen',
+    src: 'assets/opponents/leshen.png',
+    maxHp: 120,
+    damage: 11, // 26 per turn, behind three guards
+    critChance: 0.25,
+    critMultiplier: 1.5,
+    attacksPerTurn: 2,
+    defendsPerTurn: 3,
+    attackZones: ['chest', 'stomach', 'arms', 'legs'],
+    defenseZones: ['head', 'chest', 'stomach', 'arms'],
+  },
 ];
+
+export const LADDER_LENGTH = OPPONENTS.length;
 
 export function getOpponent(id) {
   return OPPONENTS.find((o) => o.id === id) || OPPONENTS[0];
 }
+
+// A win moves you up a rung; a loss or a draw leaves you where you are. Once
+// the ladder is cleared the top rung repeats.
+export function getLadderOpponent(wins) {
+  const n = Math.floor(Number(wins));
+  const safe = Number.isFinite(n) ? Math.max(0, n) : 0;
+  return OPPONENTS[Math.min(safe, OPPONENTS.length - 1)];
+}
+
+// 1-based rung of an opponent, for the "Contract N of 5" label.
+export function ladderRung(opponentId) {
+  const i = OPPONENTS.findIndex((o) => o.id === opponentId);
+  return i < 0 ? 1 : i + 1;
+}
+

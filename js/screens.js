@@ -1,7 +1,17 @@
 // Screen renderers. Each takes the #app container and the current saved
 // state, paints its markup, and wires its own listeners.
 
-import { ZONES, ZONE_LABELS, PLAYER_BASE, AVATARS, getAvatar, getOpponent } from './data.js';
+import {
+  ZONES,
+  ZONE_LABELS,
+  PLAYER_BASE,
+  AVATARS,
+  LADDER_LENGTH,
+  getAvatar,
+  getOpponent,
+  getLadderOpponent,
+  ladderRung,
+} from './data.js';
 import { updateState, clearState } from './storage.js';
 import { createBattle, resolveTurn } from './battle.js';
 import { esc, go, updateChrome, announce } from './ui.js';
@@ -72,11 +82,16 @@ export function renderHome(app, state) {
   const opponent = inProgress ? getOpponent(battle.opponentId) : null;
   const hero = getAvatar(state.avatarId);
 
+  // Who's next on the ladder — known ahead of time, so name them.
+  const nextUp = inProgress ? opponent : getLadderOpponent(wins);
+  const rung = ladderRung(nextUp.id);
+  const atTop = wins >= LADDER_LENGTH;
+
   app.innerHTML = `
     <section class="screen screen--home">
       <div class="home-grid">
         <div class="home-copy">
-          <h1 class="mega">${esc(state.name)} <em>vs</em> ${inProgress ? esc(opponent.name) : 'whatever crawls out'}</h1>
+          <h1 class="mega">${esc(state.name)} <em>vs</em> ${esc(nextUp.name)}</h1>
           <p class="lede">
             Pick one zone to strike and two to guard. A critical hits harder and
             cuts straight through a guard. Last one standing walks away.
@@ -87,7 +102,11 @@ export function renderHome(app, state) {
               inProgress
                 ? `<p class="note">Contract in progress — round ${battle.round} against
                    <b>${esc(opponent.name)}</b>.</p>`
-                : ''
+                : `<p class="note">Contract <b>${rung}</b> of <b>${LADDER_LENGTH}</b>${
+                    atTop
+                      ? ' — the top of the ladder. Nothing worse is coming.'
+                      : '. Win it to move up the ladder.'
+                  }</p>`
             }
           </div>
           <p class="record-line">
@@ -396,10 +415,12 @@ function commitBarHtml() {
 export function renderFight(app, state, prevHp) {
   let battle = state.battle;
   if (!battle) {
-    battle = createBattle(state.name);
+    // The rung is set by how many contracts are already won.
+    battle = createBattle(state.name, state.record.wins);
     state = updateState({ battle });
   }
   const opponent = getOpponent(battle.opponentId);
+  const rung = ladderRung(opponent.id);
 
   app.innerHTML = `
     <section class="screen screen--fight">
@@ -417,6 +438,7 @@ export function renderFight(app, state, prevHp) {
         <div class="vs">
           <span class="vs-round">Round ${battle.round}</span>
           <span class="vs-mark">vs</span>
+          <span class="vs-tag">Contract ${rung} of ${LADDER_LENGTH}</span>
         </div>
         ${fighterCard({
           side: 'opp',
