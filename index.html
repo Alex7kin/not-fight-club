@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WitcherFightClub</title>
+  <meta name="description" content="A turn-based fight pit on the Continent. Pick a hero card, choose your strike and guard, and log every blow of the contract." />
+  <link rel="icon" href="witcherLogo.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="site-header" id="site-header" hidden>
+    <a class="brand" href="#/"><span class="brand-mark" aria-hidden="true">◈</span> Witcher<span>Fight</span>Club</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="#/" data-route="home">Contract</a>
+      <a href="#/character" data-route="character">Hero</a>
+      <a href="#/settings" data-route="settings">Settings</a>
+    </nav>
+    <button class="music-toggle" id="music-toggle" type="button" aria-pressed="false" aria-label="Turn music on"></button>
+    <a class="player-chip" href="#/character" id="player-chip"></a>
+  </header>
+
+  <main id="app" class="app"></main>
+
+  <!-- Persistent live region: survives the per-turn re-render so screen
+       readers still hear the outcome of each swing. -->
+  <div id="sr-status" class="sr-only" role="status" aria-live="polite"></div>
+
+  <footer class="site-footer" id="site-footer" hidden>
+    <p>No monster stays down for long. · <span class="footer-task">RS School Bootcamp — Not Fight Club</span></p>
+  </footer>
+
+  <!-- Background music. preload="none" so the track is only fetched if the
+       player actually turns it on. -->
+  <audio id="bgm" src="assets/sounds/Gwent.webm" loop preload="none"></audio>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
+
+
